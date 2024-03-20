@@ -1,0 +1,16 @@
+{
+    "coc.source.OmniSharp.enable" : true,
+    "coc.source.OmniSharp.triggerCharacters": ".",
+    "omnisharp.useMono": true,
+    "languageserver": {
+        "terraform": {
+            "command": "terraform-lsp",
+            "filetypes": [
+                "terraform",
+                "tf"
+            ],
+            "initializationOptions": {},
+            "settings": {}
+        }
+    }
+}
