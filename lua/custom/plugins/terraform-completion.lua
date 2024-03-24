@@ -1,11 +1,11 @@
 return {
   {
     'juliosueiras/vim-terraform-completion',
-    dependecies = {
+    dependencies = {
       'Shougo/deoplete.nvim',
       'neomake/neomake',
       'vim-syntastic/syntastic',
-      'hashivim/vim-terraform'
+      'hashivim/vim-terraform',
     },
-  }
+  },
 }
