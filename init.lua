@@ -852,6 +852,36 @@ require('lazy').setup({
   },
 })
 
+-- Tabnine
+require('tabnine').setup {
+  disable_auto_comment = true,
+  accept_keymap = '<Tab>',
+  dismiss_keymap = '<C-]>',
+  debounce_ms = 800,
+  suggestion_color = { gui = '#808080', cterm = 244 },
+  exclude_filetypes = { 'TelescopePrompt', 'NvimTree' },
+  log_file_path = '/home/berni/.config/nvim', -- absolute path to Tabnine log file
+  ignore_certificate_errors = false,
+}
+
+require('lualine').setup {
+  tabline = {
+    lualine_a = {},
+    lualine_b = { 'branch' },
+    lualine_c = { 'filename' },
+    lualine_x = {},
+    lualine_y = {},
+    lualine_z = {},
+  },
+  sections = { lualine_c = { 'lsp_progress' }, lualine_x = { 'tabnine' } },
+}
+
+require('tabnine.status').status()
+
+require('lualine').setup {
+  options = { theme = 'gruvbox' },
+}
+
 vim.cmd 'luafile ~/.config/nvim/lua/custom/config/macros.lua'
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
