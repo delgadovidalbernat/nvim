@@ -4,6 +4,9 @@ return {
     build = ':TSUpdate',
     opts = {
       ensure_installed = {
+        'astro',
+        'css',
+        'scss',
         'bash',
         'c',
         'diff',

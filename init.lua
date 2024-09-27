@@ -505,17 +505,19 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
+        clangd = {},
+        gopls = {},
+        pyright = {},
+        rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
-        -- tsserver = {},
+        tsserver = {
+          filetypes = { 'astro', 'js', 'ts', 'jsx', 'tsx' },
+        },
         --
 
         lua_ls = {
@@ -547,6 +549,16 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'astro',
+        'html',
+        'cssls',
+        'jsonls',
+        'emmet_ls',
+        'bashls',
+        'dockerfilels',
+        'pyright',
+        'rust_analyzer',
+        'tsserver',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -603,7 +615,7 @@ require('lazy').setup({
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
@@ -855,12 +867,12 @@ require('lazy').setup({
 -- Tabnine
 require('tabnine').setup {
   disable_auto_comment = true,
-  accept_keymap = '<Tab>',
+  accept_keymap = '<C-Tab>',
   dismiss_keymap = '<C-]>',
   debounce_ms = 800,
   suggestion_color = { gui = '#808080', cterm = 244 },
   exclude_filetypes = { 'TelescopePrompt', 'NvimTree' },
-  log_file_path = '/home/berni/.config/nvim', -- absolute path to Tabnine log file
+  log_file_path = '/home/berni/.config/nvim/tabnine.log', -- absolute path to Tabnine log file
   ignore_certificate_errors = false,
 }
 
@@ -868,8 +880,8 @@ require('lualine').setup {
   sections = { lualine_c = { 'lsp_progress' }, lualine_x = { 'tabnine' } },
 }
 
-vim.keymap.set('x', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
-vim.keymap.set('i', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
+-- vim.keymap.set('x', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
+-- vim.keymap.set('i', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
 vim.keymap.set('n', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
 
 require('tabnine.status').status()
@@ -880,4 +892,4 @@ require('lualine').setup {
 
 vim.cmd 'luafile ~/.config/nvim/lua/custom/config/macros.lua'
 -- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+-- vim: ts=2 sts=2 sw=2 tsx=2 jsx=2 astro=2 et
