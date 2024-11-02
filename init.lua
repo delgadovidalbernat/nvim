@@ -133,9 +133,9 @@ require('lualine').setup {
   sections = { lualine_c = { 'lsp_progress' }, lualine_x = { 'tabnine' } },
 }
 
-vim.keymap.set('x', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
-vim.keymap.set('i', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
-vim.keymap.set('n', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
+-- vim.keymap.set('x', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
+-- vim.keymap.set('i', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
+-- vim.keymap.set('n', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
 
 require('tabnine.status').status()
 
