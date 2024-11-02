@@ -135,11 +135,7 @@ require('lualine').setup {
 
 -- vim.keymap.set('x', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
 -- vim.keymap.set('i', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
-<<<<<<< HEAD
 -- vim.keymap.set('n', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
-=======
-vim.keymap.set('n', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
->>>>>>> 0c7998bfb0e3e97c1098d2f6772d3bd96e1b6e4e
 
 require('tabnine.status').status()
 
