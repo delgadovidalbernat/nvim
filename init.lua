@@ -120,12 +120,12 @@ require 'lazy-plugins'
 -- Tabnine
 require('tabnine').setup {
   disable_auto_comment = true,
-  accept_keymap = '<Tab>',
+  accept_keymap = '<C-Tab>',
   dismiss_keymap = '<C-]>',
   debounce_ms = 800,
   suggestion_color = { gui = '#808080', cterm = 244 },
   exclude_filetypes = { 'TelescopePrompt', 'NvimTree' },
-  log_file_path = '/home/berni/.config/nvim', -- absolute path to Tabnine log file
+  log_file_path = '/home/berni/.config/nvim/tabnine.log', -- absolute path to Tabnine log file
   ignore_certificate_errors = false,
 }
 
@@ -135,7 +135,11 @@ require('lualine').setup {
 
 -- vim.keymap.set('x', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
 -- vim.keymap.set('i', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
+<<<<<<< HEAD
 -- vim.keymap.set('n', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
+=======
+vim.keymap.set('n', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
+>>>>>>> 0c7998bfb0e3e97c1098d2f6772d3bd96e1b6e4e
 
 require('tabnine.status').status()
 
@@ -145,4 +149,4 @@ require('lualine').setup {
 
 vim.cmd 'luafile ~/.config/nvim/lua/custom/config/macros.lua'
 -- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 js=2 jsx=2 tsx=2 et
+-- vim: ts=2 sts=2 sw=2 tsx=2 jsx=2 astro=2 et
