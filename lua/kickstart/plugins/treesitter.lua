@@ -36,6 +36,17 @@ return {
         additional_vim_regex_highlighting = { 'ruby' },
       },
       indent = { enable = true, disable = { 'ruby' } },
+
+      -- Configuración de indentación para archivos .astro
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = 'astro',
+        callback = function()
+          vim.bo.shiftwidth = 2
+          vim.bo.tabstop = 2
+          vim.bo.softtabstop = 2
+          vim.bo.expandtab = true
+        end,
+      }),
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
