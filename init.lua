@@ -117,28 +117,6 @@ vim.opt.rtp:prepend(lazypath)
 -- [[ Configure and install plugins ]]
 require 'lazy-plugins'
 
--- Tabnine
-require('tabnine').setup {
-  disable_auto_comment = true,
-  accept_keymap = '<M-Tab>',
-  dismiss_keymap = '<C-]>',
-  debounce_ms = 800,
-  suggestion_color = { gui = '#808080', cterm = 244 },
-  exclude_filetypes = { 'TelescopePrompt', 'NvimTree' },
-  log_file_path = '/home/berni/.config/nvim/tabnine.log', -- absolute path to Tabnine log file
-  ignore_certificate_errors = false,
-}
-
-require('lualine').setup {
-  sections = { lualine_c = { 'lsp_progress' }, lualine_x = { 'tabnine' } },
-}
-
--- vim.keymap.set('x', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
--- vim.keymap.set('i', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
--- vim.keymap.set('n', '<leader>c', '', { noremap = true, callback = require('tabnine.chat').open })
-
-require('tabnine.status').status()
-
 require('lualine').setup {
   options = { theme = 'gruvbox' },
 }
