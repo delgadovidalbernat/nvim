@@ -203,7 +203,60 @@ return {
             },
           },
         },
+        sqlls = {
+          capabilities = capabilities,
+          root_dir = function()
+            return vim.loop.cwd()
+          end,
+          settings = {
+            sqlLanguageServer = {
+              connections = (function()
+                local env = vim.env.SQL_ENV or 'local'
+                local config_file = string.format('%s/.sqlls/%s.json', vim.fn.getcwd(), env)
+                local f = io.open(config_file, 'r')
+                if f then
+                  local content = f:read '*all'
+                  f:close()
+                  local config = vim.json.decode(content)
+                  return config.connections
+                end
+                return {}
+              end)(),
+              lint = {
+                rules = {
+                  'postgresql',
+                },
+              },
+            },
+          },
+        },
       }
+
+      -- Justo después de la definición de servers, añade:
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = 'dbee',
+        callback = function()
+          vim.bo.filetype = 'sql'
+          local client = vim.lsp.get_client_by_id(1)
+          if not client then
+            vim.lsp.start {
+              name = 'sqlls',
+              cmd = { vim.fn.stdpath 'data' .. '/mason/bin/sql-language-server', 'up', '--method', 'stdio' },
+            }
+          end
+        end,
+      })
+
+      vim.api.nvim_create_user_command('SqlEnv', function(opts)
+        vim.env.SQL_ENV = opts.args
+        vim.cmd 'LspRestart'
+        vim.notify('SQL environment changed to: ' .. opts.args)
+      end, {
+        nargs = 1,
+        complete = function()
+          return { 'local', 'dev', 'prod' }
+        end,
+      })
 
       -- Ensure the servers and tools above are installed
       --  To check the current status of installed tools and/or manually install
