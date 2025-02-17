@@ -7,6 +7,12 @@ return {
     opts = {
       ensure_installed = {
         'astro',
+        'terraform',
+        'json',
+        'yaml',
+        'toml',
+        'lua',
+        'hcl',
         'css',
         'scss',
         'bash',
