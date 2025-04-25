@@ -100,6 +100,9 @@ require 'options'
 -- [[ Basic Keymaps ]]
 require 'keymaps'
 
+-- [[ WSL compatibility ]]
+require 'wsl'
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 -- require 'lazy-bootstrap'
 
