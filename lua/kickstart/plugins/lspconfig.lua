@@ -323,6 +323,28 @@ return {
           end,
         },
       }
+
+      local gdscript_config = {
+        capabilities = capabilities,
+        settings = {},
+      }
+
+      if vim.fn.has 'win32' == 1 then
+        -- En Windows, usamos la IP conocida o localhost
+        gdscript_config['cmd'] = { 'ncat', '127.0.0.1', os.getenv 'GDSCRIPT_PORT' or '6005' }
+      elseif vim.fn.has 'linux' == 1 then
+        -- En Linux (WSL), obtenemos dinámicamente la IP del host de Windows
+        local function get_windows_host_ip()
+          local handle = io.popen "ip route show | grep -i default | awk '{print $3}'"
+          local result = handle:read '*a'
+          handle:close()
+          return result:gsub('%s+', '') -- Elimina espacios en blanco
+        end
+
+        gdscript_config['cmd'] = { 'ncat', get_windows_host_ip(), os.getenv 'GDSCRIPT_PORT' or '6005' }
+      end
+
+      require('lspconfig').gdscript.setup(gdscript_config)
     end,
   },
 }

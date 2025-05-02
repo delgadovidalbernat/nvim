@@ -124,6 +124,17 @@ require('lualine').setup {
   options = { theme = 'gruvbox' },
 }
 
-vim.cmd 'luafile ~/.config/nvim/lua/custom/config/macros.lua'
+if vim.fn.has 'win32' == 1 then
+  -- Ruta para Windows
+  local macros_path = vim.fn.expand '$LOCALAPPDATA' .. '/nvim/lua/custom/config/macros.lua'
+  local f = io.open(macros_path, 'r')
+  if f ~= nil then
+    io.close(f)
+    vim.cmd('luafile ' .. macros_path)
+  end
+else
+  -- Ruta para Linux/macOS
+  vim.cmd 'luafile ~/.config/nvim/lua/custom/config/macros.lua'
+end
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 tsx=2 jsx=2 astro=2 et

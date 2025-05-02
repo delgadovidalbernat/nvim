@@ -144,5 +144,41 @@ return {
         detached = vim.fn.has 'win32' == 0,
       },
     }
+
+    local function get_windows_host_ip()
+      if vim.fn.has 'linux' == 1 and vim.fn.system('uname -r'):match 'microsoft' then
+        local handle = io.popen "ip route show | grep -i default | awk '{print $3}'"
+        local result = handle:read '*a'
+        handle:close()
+        return result:gsub('%s+', '') -- Elimina espacios en blanco
+      end
+      return '127.0.0.1' -- Devuelve localhost por defecto
+    end
+
+    -- Configuración de adapter según el sistema operativo
+    if vim.fn.has 'win32' == 1 then
+      dap.adapters.godot = {
+        type = 'server',
+        host = '127.0.0.1',
+        port = 6006,
+      }
+    else
+      -- Para WSL o Linux
+      dap.adapters.godot = {
+        type = 'server',
+        host = get_windows_host_ip(),
+        port = 6006,
+      }
+    end
+
+    -- Configuración de depuración (igual para ambos sistemas)
+    dap.configurations.gdscript = {
+      {
+        type = 'godot',
+        request = 'launch',
+        name = 'Launch scene',
+        project = '${workspaceFolder}',
+      },
+    }
   end,
 }
