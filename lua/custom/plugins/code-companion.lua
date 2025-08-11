@@ -49,6 +49,13 @@ return {
     },
     opts = {
       adapters = {
+        tavily = function()
+          return require('codecompanion.adapters').extend('tavily', {
+            env = {
+              api_key = 'cmd:echo $TAVILY_API_KEY',
+            },
+          })
+        end,
         -- Active OpenAI configuration
         openai = function()
           return require('codecompanion.adapters').extend('openai', {
