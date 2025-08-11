@@ -166,7 +166,7 @@ return {
       -- Para WSL o Linux
       dap.adapters.godot = {
         type = 'server',
-        host = get_windows_host_ip(),
+        host = '127.0.0.1',
         port = 6006,
       }
     end
