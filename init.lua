@@ -120,10 +120,6 @@ vim.opt.rtp:prepend(lazypath)
 -- [[ Configure and install plugins ]]
 require 'lazy-plugins'
 
-require('lualine').setup {
-  options = { theme = 'gruvbox' },
-}
-
 if vim.fn.has 'win32' == 1 then
   -- Ruta para Windows
   local macros_path = vim.fn.expand '$LOCALAPPDATA' .. '/nvim/lua/custom/config/macros.lua'
