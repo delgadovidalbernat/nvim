@@ -105,22 +105,31 @@ return {
         --   })
         -- end,
 
-        -- Uncomment to use local models with Ollama
-        -- ollama = function()
-        --   return require("codecompanion.adapters").extend("ollama", {
-        --     schema = {
-        --       model = {
-        --         default = "codellama:latest", -- or deepseek-coder, qwen2.5-coder, etc.
-        --       },
-        --       num_ctx = {
-        --         default = 16384, -- Context window size
-        --       },
-        --       temperature = {
-        --         default = 0.3, -- Lower for more focused code generation
-        --       },
-        --     },
-        --   })
-        -- end,
+        ollama = function()
+          return require('codecompanion.adapters').extend('ollama', {
+            schema = {
+              model = {
+                default = 'qwen3-coder:latest',
+              },
+              -- num_ctx = {
+              --   default = 16384, -- Context window size
+              -- },
+              temperature = {
+                default = 0,
+              },
+            },
+          })
+        end,
+
+        ollamaXL = function()
+          return require('codecompanion.adapters').extend('ollama', {
+            schema = {
+              model = {
+                default = 'qwen3-coder8XL:latest',
+              },
+            },
+          })
+        end,
 
         -- Uncomment to use local models with LM Studio or similar
         -- openai_compatible = function()
@@ -140,8 +149,8 @@ return {
       strategies = {
         chat = {
           adapter = {
-            name = 'openai', -- Change to "anthropic" or "ollama" when using alternatives
-            model = 'gpt-5', -- Change to "claude-3-5-sonnet-20241022" or "codellama:latest"
+            name = 'ollama', -- Change to "anthropic" or "ollama" when using alternatives
+            model = 'qwen3-coder', -- Change to "claude-3-5-sonnet-20241022" or "codellama:latest"
           },
           roles = {
             user = 'Berni', -- Using your preferred name
@@ -193,8 +202,8 @@ return {
         },
         inline = {
           adapter = {
-            name = 'openai', -- Change to "anthropic" or "ollama" when using alternatives
-            model = 'gpt-5', -- Change to "claude-3-5-sonnet-20241022" or "codellama:latest"
+            name = 'ollama', -- Change to "anthropic" or "ollama" when using alternatives
+            model = 'qwen3-coder', -- Change to "claude-3-5-sonnet-20241022" or "codellama:latest"
           },
         },
       },
@@ -205,7 +214,7 @@ return {
         chat = {
           show_references = true,
           show_header_separator = true,
-          show_settings = true,
+          show_settings = false,
           icons = {
             tool_success = '✓ ',
           },
