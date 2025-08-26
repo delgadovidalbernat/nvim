@@ -12,9 +12,16 @@ return {
   lazy = false,
   keys = {
     { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    { '<Tab><Tab>', ':Neotree toggle<CR>', desc = 'NeoTree toggle', silent = true },
   },
   opts = {
     filesystem = {
+      filtered_items = {
+        hide_dotfiles = false,
+        hide_gitignored = false,
+        visible = true,
+        hide_by_name = {},
+      },
       window = {
         mappings = {
           ['\\'] = 'close_window',
