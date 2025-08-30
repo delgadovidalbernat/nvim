@@ -9,9 +9,9 @@ return {
     'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
     'MunifTanjim/nui.nvim',
   },
-  lazy = false,
+  lazy = true,
   keys = {
-    { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    { '\\', ':Neotree toggle<CR>', desc = 'NeoTree toggle', silent = true },
     { '<Tab><Tab>', ':Neotree toggle<CR>', desc = 'NeoTree toggle', silent = true },
   },
   opts = {
