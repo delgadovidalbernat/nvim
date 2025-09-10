@@ -1,5 +1,5 @@
 return {
   {
-    'tpope/vim-dadbod'
-  }
+    'tpope/vim-dadbod',
+  },
 }
