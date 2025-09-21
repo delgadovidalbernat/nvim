@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "groups": [
+    {
+      "name": "Core",
+      "items": [
+        { "type": "symbols", "path": "init.lua", "editable": false },
+        { "type": "symbols", "path": "lua/lazy-plugins.lua", "editable": false },
+        { "type": "file", "path": "lua/lazy-bootstrap.lua", "editable": false },
+        { "type": "file", "path": "lua/options.lua", "editable": false },
+        { "type": "file", "path": "lua/keymaps.lua", "editable": false },
+        { "type": "file", "path": "lua/wsl.lua", "editable": false },
+        { "type": "file", "path": "lua/kickstart/health.lua", "editable": false },
+        { "type": "symbols", "path": "lua/kickstart/plugins/lspconfig.lua", "editable": false },
+        { "type": "symbols", "path": "lua/kickstart/plugins/treesitter.lua", "editable": false },
+        { "type": "file", "path": "lua/kickstart/plugins/telescope.lua", "editable": false },
+        { "type": "file", "path": "lua/kickstart/plugins/neo-tree.lua", "editable": false },
+        { "type": "file", "path": "lua/kickstart/plugins/which-key.lua", "editable": false },
+        { "type": "file", "path": "lua/kickstart/plugins/mini.lua", "editable": false },
+        { "type": "file", "path": "lua/custom/plugins/init.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/code-companion.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/noice.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/neotest.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/git.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/dbee.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/rustaceanvim.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/tree.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/lualine.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/copilot.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/copilot-chat.lua", "editable": true },
+        { "type": "symbols", "path": "lua/custom/plugins/render-markdown.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/bbdd-completion.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/bbdd-ui.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/bbdd.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/bigfile-nvim.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/bookmarks-telescope.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/bookmarks.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/calendar.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/cellular-automation.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/chatgpt.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/cmp-hub.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/coc-nvim.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/colorizer.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/csv-view.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/diff-review.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/fox-themes.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/greeter.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/hardtime.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/hlchunk.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/hop.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/multicursor.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/neoscroll.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/omnisharp.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/smear-cursor.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/system-copy.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/tabtab.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/terminal.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/terraform-completion.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/terraform.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/toggle-numbers.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/tokyoTheme.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/tree-sitter-astro.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/vim-astro.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/plugins/vim-be-good.lua", "editable": true }
+      ]
+    },
+    {
+      "name": "Configuration",
+      "items": [
+        { "type": "file", "path": ".stylua.toml", "editable": false },
+        { "type": "file", "path": "coc-settings.json", "editable": false },
+        { "type": "file", "path": "lazy-lock.json", "editable": false },
+        { "type": "file", "path": ".github/workflows/stylua.yml", "editable": false },
+        { "type": "file", "path": "lua/custom/config/credentials.vim", "editable": true },
+        { "type": "file", "path": "lua/custom/config/greeter-config.lua", "editable": true },
+        { "type": "file", "path": "lua/custom/config/macros.lua", "editable": true }
+      ]
+    },
+    {
+      "name": "Tests",
+      "items": []
+    },
+    {
+      "name": "Documentation",
+      "items": [
+        { "type": "file", "path": "README.md", "editable": false },
+        { "type": "file", "path": "LICENSE.md", "editable": false },
+        { "type": "file", "path": "CLAUDE.md", "editable": false },
+        { "type": "file", "path": "doc/kickstart.txt", "editable": false }
+      ]
+    }
+  ]
+}
