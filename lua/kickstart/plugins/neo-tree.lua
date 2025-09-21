@@ -17,8 +17,8 @@ return {
   opts = {
     filesystem = {
       filtered_items = {
-        hide_dotfiles = false,
-        hide_gitignored = false,
+        hide_dotfiles = true,
+        hide_gitignored = true,
         visible = true,
         hide_by_name = {},
       },

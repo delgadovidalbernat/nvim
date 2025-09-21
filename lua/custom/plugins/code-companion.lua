@@ -149,11 +149,163 @@ return {
       strategies = {
         chat = {
           adapter = {
-            name = 'ollama', -- Change to "anthropic" or "ollama" when using alternatives
-            model = 'qwen3-coder', -- Change to "claude-3-5-sonnet-20241022" or "codellama:latest"
+            name = 'openai', -- Change to "anthropic" or "ollama" when using alternatives
+            model = 'gpt-5', -- Change to "claude-3-5-sonnet-20241022" or "codellama:latest"
           },
           roles = {
             user = 'Berni', -- Using your preferred name
+          },
+          tools = {
+            file_search = {
+              enabled = true,
+            },
+            grep_search = {
+              enabled = true,
+            },
+            read_file = {
+              enabled = true,
+            },
+            create_file = {
+              enabled = true,
+            },
+            insert_edit_into_file = {
+              enabled = true,
+            },
+            get_changed_files = {
+              enabled = true,
+            },
+
+            -- Tool groups para workflows complejos
+            groups = {
+              -- Análisis completo del proyecto
+              ['full_analysis'] = {
+                description = 'Complete project analysis with structure and code review',
+                tools = {
+                  'file_search',
+                  'grep_search',
+                  'read_file',
+                  'get_changed_files',
+                },
+              },
+
+              -- Workflow de desarrollo
+              ['dev_workflow'] = {
+                description = 'Development and refactoring workflow',
+                tools = {
+                  'read_file',
+                  'create_file',
+                  'insert_edit_into_file',
+                  'grep_search',
+                },
+              },
+
+              -- Análisis de seguridad
+              ['security_audit'] = {
+                description = 'Security-focused code analysis',
+                tools = {
+                  'grep_search', -- Buscar patrones inseguros
+                  'file_search', -- Encontrar archivos críticos
+                  'read_file', -- Leer código específico
+                },
+              },
+
+              -- Refactoring asistido
+              ['refactor_assist'] = {
+                description = 'Code refactoring and improvement workflow',
+                tools = {
+                  'grep_search', -- Encontrar todos los usos
+                  'read_file', -- Leer implementación actual
+                  'insert_edit_into_file', -- Aplicar cambios
+                  'get_changed_files', -- Ver qué se modificó
+                },
+              },
+
+              -- Debugging workflow
+              ['debug_workflow'] = {
+                description = 'Debugging and error investigation',
+                tools = {
+                  'grep_search', -- Buscar logs/errores
+                  'read_file', -- Leer archivos problemáticos
+                  'get_changed_files', -- Ver cambios recientes
+                },
+              },
+
+              -- Testing workflow
+              ['test_workflow'] = {
+                description = 'Test creation and analysis',
+                tools = {
+                  'file_search', -- Encontrar archivos de test
+                  'read_file', -- Leer código a testear
+                  'create_file', -- Crear nuevos tests
+                  'grep_search', -- Buscar patrones de testing
+                },
+              },
+
+              -- Documentation workflow
+              ['docs_workflow'] = {
+                description = 'Documentation analysis and creation',
+                tools = {
+                  'file_search', -- Encontrar docs existentes
+                  'read_file', -- Leer código para documentar
+                  'create_file', -- Crear nueva documentación
+                  'grep_search', -- Buscar comentarios/TODO
+                },
+              },
+
+              -- Performance analysis
+              ['performance_audit'] = {
+                description = 'Performance analysis and optimization',
+                tools = {
+                  'grep_search', -- Buscar hotspots potenciales
+                  'read_file', -- Analizar código crítico
+                  'file_search', -- Encontrar archivos relacionados
+                },
+              },
+            },
+          },
+          variables = {
+            -- Variables personalizadas para tu workflow
+            project_context = {
+              description = 'Current project structure and key files',
+              callback = function()
+                -- Automáticamente incluye estructura del proyecto
+                local context = {}
+                table.insert(context, '## Project Structure')
+
+                local patterns = {
+                  '*.go',
+                  '*.rs',
+                  '*.js',
+                  '*.ts',
+                  '*.py',
+                  '*.java',
+                  '*.cpp',
+                  '*.c',
+                  '*.h',
+                  '*.md',
+                  '*.yaml',
+                  '*.yml',
+                  '*.json',
+                  '*.toml',
+                  '*.lock',
+                  'Dockerfile',
+                  'docker-compose.*',
+                  'Makefile',
+                  '*.mk',
+                }
+
+                local find_cmd = 'find . -maxdepth 3 \\( '
+                  .. table.concat(
+                    vim.tbl_map(function(p)
+                      return "-name '" .. p .. "'"
+                    end, patterns),
+                    ' -o '
+                  )
+                  .. ' \\) | head -25'
+                table.insert(context, vim.fn.system(find_cmd))
+                return table.concat(context, '\n')
+              end,
+            },
           },
           keymaps = {
             send = {
@@ -179,6 +331,24 @@ return {
               keymaps = {
                 modes = {
                   i = '<C-f>',
+                },
+              },
+            },
+            ['workspace'] = {
+              keymaps = {
+                modes = {
+                  i = '<C-w>',
+                },
+              },
+              opts = {
+                -- Busca workspace files en el directorio actual
+                search_dirs = { '.', './docs', './config' },
+              },
+            },
+            ['symbols'] = {
+              keymaps = {
+                modes = {
+                  i = '<C-y>',
                 },
               },
             },
@@ -483,12 +653,453 @@ Remember: You're the toxic but loveable programming buddy who makes coding fun t
         desc = 'CodeCompanion: Start new chat',
         mode = { 'n' },
       },
+      {
+        '<Leader>aw',
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, { '/workspace ' })
+              vim.cmd 'startinsert!'
+              vim.api.nvim_win_set_cursor(0, { vim.api.nvim_buf_line_count(buf), 11 })
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Start chat with workspace',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>as',
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, { '@{grep_search} ' })
+              vim.cmd 'startinsert!'
+              vim.api.nvim_win_set_cursor(0, { vim.api.nvim_buf_line_count(buf), 15 })
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Start chat with search',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>af',
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              local current_file = vim.fn.expand '%:t'
+              if current_file ~= '' then
+                -- Usar el archivo específico y añadir también read_file para asegurar contenido
+                vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                  '#{buffer:' .. current_file .. '}',
+                  '@{read_file} ' .. vim.fn.expand '%:p',
+                  '',
+                  'Analiza este archivo. ¿Qué puedes decirme sobre su estructura y funcionamiento?',
+                })
+              else
+                vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                  '#{buffer}',
+                  '',
+                  'Analiza el buffer actual',
+                })
+              end
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Chat with current file context',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>ap',
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{file_search} main entry points and configs',
+                '',
+                '#{project_context}',
+                '',
+                'Analyze this project structure and provide insights about:',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Full project analysis',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>ar',
+        function()
+          local visual_selection = ''
+          if vim.fn.mode() == 'v' or vim.fn.mode() == 'V' then
+            -- Get visual selection
+            vim.cmd 'normal! "vy'
+            visual_selection = vim.fn.getreg 'v'
+          end
+
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              local current_file = vim.fn.expand '%:t'
+              local prompt_lines = {
+                '@{file_search} ' .. current_file,
+                '@{read_file} ' .. vim.fn.expand '%:p', -- Usar path completo
+                '',
+                'Review this file for:',
+              }
+
+              if visual_selection ~= '' then
+                table.insert(prompt_lines, '')
+                table.insert(prompt_lines, 'Focus specifically on this selection:')
+                table.insert(prompt_lines, '```')
+                vim.list_extend(prompt_lines, vim.split(visual_selection, '\n'))
+                table.insert(prompt_lines, '```')
+              end
+
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, prompt_lines)
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Review current file/selection',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<Leader>ag',
+        function()
+          local search_term = vim.fn.input 'Search in codebase: '
+          if search_term ~= '' then
+            vim.cmd 'CodeCompanionChat'
+            vim.defer_fn(function()
+              local buf = vim.api.nvim_get_current_buf()
+              if vim.bo[buf].filetype == 'codecompanion' then
+                vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                  '@{grep_search} ' .. search_term,
+                  '',
+                  'Show me all occurrences and explain the patterns/usage',
+                })
+                vim.cmd 'startinsert!'
+              end
+            end, 100)
+          end
+        end,
+        desc = 'CodeCompanion: Grep search in codebase',
+        mode = { 'n' },
+      },
+      -- RAG Workflows Avanzados
+      {
+        '<Leader>aS', -- Security audit
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{security_audit} Analyze this codebase for security vulnerabilities',
+                '',
+                'Focus on:',
+                '- Input validation and sanitization',
+                '- Authentication and authorization flaws',
+                '- Injection vulnerabilities',
+                '- Insecure dependencies',
+                '- Hardcoded secrets or credentials',
+                '- File/path traversal risks',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Security audit workflow',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>aR', -- Refactoring workflow
+        function()
+          local symbol = vim.fn.expand '<cword>' -- Palabra bajo el cursor
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{refactor_assist} Refactor "' .. symbol .. '" in this codebase',
+                '',
+                'Please:',
+                '1. Find all usages of this symbol',
+                '2. Analyze the current implementation',
+                '3. Suggest improvements (naming, structure, patterns)',
+                '4. Show refactored version with rationale',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Refactor symbol under cursor',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>aD', -- Debug workflow
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{debug_workflow} Debug analysis for current issue',
+                '',
+                '#{project_context}',
+                '',
+                'Help me debug this. Look for:',
+                '- Recent changes that might cause issues',
+                '- Common error patterns',
+                '- Missing error handling',
+                '- State management problems',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Debug workflow',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>aT', -- Test workflow
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              local current_file = vim.fn.expand '%:t'
+              local current_path = vim.fn.expand '%:p:h'
+
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{test_workflow} Generate tests for ' .. current_file,
+                '',
+                -- First, analyze existing test patterns in this project:',
+                '@{file_search} *test*.go *test*.js *test*.ts *test*.py *test*.rs *_test.* test_*',
+                '@{file_search} tests/ __tests__/ test/ spec/ specs/',
+                '',
+                '-- Read the current file to understand what to test:',
+                '@{read_file} ' .. vim.fn.expand '%:p',
+                '',
+                '-- Look for existing test examples in nearby directories:',
+                '@{file_search} ' .. current_path .. '/*test*',
+                '@{file_search} ' .. vim.fn.fnamemodify(current_path, ':h') .. '/test*',
+                '',
+                'Please:',
+                "1. FIRST analyze any existing tests to understand the project's testing patterns:",
+                '   - Testing framework used (Jest, Go testing, pytest, etc.)',
+                '   - File naming conventions (*_test.go, *.test.js, test_*.py)',
+                '   - Directory structure (tests/, __tests__, same directory)',
+                '   - Mocking patterns and test utilities',
+                '   - Code style and assertion patterns',
+                '',
+                '2. IF existing tests found: Follow the same patterns, style, and framework',
+                '3. IF no tests found: Use best practices for the detected language',
+                '',
+                '4. Generate comprehensive tests including:',
+                '   - Unit tests for individual functions',
+                '   - Integration tests for workflows',
+                '   - Edge cases and error conditions',
+                '   - Mock external dependencies following project patterns',
+                '',
+                '5. Place tests in the appropriate location based on project structure',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Generate tests workflow',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>aP', -- Performance audit
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{performance_audit} Analyze performance bottlenecks',
+                '',
+                '#{project_context}',
+                '',
+                'Review for performance issues:',
+                '- Hot paths and critical sections',
+                '- Memory allocation patterns',
+                '- I/O operations and blocking calls',
+                '- Algorithm complexity',
+                '- Caching opportunities',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Performance audit',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>aM', -- Documentation workflow
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              local current_file = vim.fn.expand '%:t'
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{docs_workflow} Create documentation for ' .. current_file,
+                '',
+                '@{read_file} ' .. vim.fn.expand '%:p',
+                '',
+                'Generate documentation including:',
+                '- Function/method documentation',
+                '- Usage examples',
+                '- API documentation',
+                '- Architecture overview',
+                '- README sections if needed',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Documentation workflow',
+        mode = { 'n' },
+      },
     },
     init = function()
       -- Create useful command aliases
       vim.cmd [[cab cc CodeCompanion]]
       vim.cmd [[cab cca CodeCompanionActions]]
       vim.cmd [[cab ccc CodeCompanionChat]]
+
+      vim.api.nvim_create_user_command('CCGenWorkspace', function()
+        local project_type = vim.fn.input('Project type (go/rust/ts/python/mixed): ', 'mixed')
+        local prompt = string.format(
+          [[
+Create a codecompanion-workspace.json file for this %s project.
+
+@{file_search} find all main source files and important configs
+@{grep_search} find main entry points and key functions
+
+Based on the file structure, create appropriate groups for:
+1. Core/main source files
+2. Configuration files
+3. Tests (if any)
+4. Documentation
+
+Use 'symbols' type for large files and 'file' type for important small files.
+Format the response as a proper JSON workspace file.
+]],
+          project_type
+        )
+
+        vim.cmd 'CodeCompanionChat'
+        vim.defer_fn(function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.bo[buf].filetype == 'codecompanion' then
+            vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(prompt, '\n'))
+          end
+        end, 100)
+      end, { desc = 'Generate CodeCompanion workspace file' })
+
+      vim.api.nvim_create_user_command('CCAnalyze', function(opts)
+        local query = opts.args ~= '' and opts.args or vim.fn.input 'What to analyze: '
+        local prompt = string.format(
+          [[
+@{grep_search} %s
+
+#{project_context}
+
+Analyze the search results and project context. Provide insights about:
+- Code structure and patterns
+- Potential improvements
+- Architecture observations
+- Best practices recommendations
+]],
+          query
+        )
+
+        vim.cmd 'CodeCompanionChat'
+        vim.defer_fn(function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.bo[buf].filetype == 'codecompanion' then
+            vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(prompt, '\n'))
+          end
+        end, 100)
+      end, { nargs = '?', desc = 'Quick analysis with RAG search' })
+
+      vim.api.nvim_create_user_command('CCReview', function(opts)
+        local file_pattern = opts.args ~= '' and opts.args or vim.fn.input 'File pattern to review: '
+        local prompt = string.format(
+          [[
+@{file_search} %s
+@{read_file} all found files
+
+Review the found files and provide:
+- Code quality assessment
+- Security considerations
+- Performance suggestions
+- Best practices compliance
+
+Focus on actionable improvements.
+]],
+          file_pattern
+        )
+
+        vim.cmd 'CodeCompanionChat'
+        vim.defer_fn(function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.bo[buf].filetype == 'codecompanion' then
+            vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(prompt, '\n'))
+          end
+        end, 100)
+      end, { nargs = '?', desc = 'Review files with CodeCompanion' })
+
+      vim.api.nvim_create_user_command('CCSmartTest', function(opts)
+        local target_file = opts.args ~= '' and opts.args or vim.fn.expand '%:p'
+        local target_name = vim.fn.fnamemodify(target_file, ':t')
+        local target_dir = vim.fn.fnamemodify(target_file, ':h')
+
+        local prompt = string.format(
+          [[
+@{test_workflow} Smart test generation for %s
+
+-- STEP 1: Discover existing test patterns
+@{file_search} *test* *spec* tests/ __tests__/ test/
+@{grep_search} test framework imports describe it should expect assert
+
+-- STEP 2: Look for tests in nearby locations  
+@{file_search} %s/*test*
+@{file_search} %s/../test*
+
+-- STEP 3: Read the target file
+@{read_file} %s
+
+ANALYSIS: First analyze discovered tests to identify patterns, then generate tests following the same style. If no patterns found, use language best practices.
+]],
+          target_name,
+          target_dir,
+          target_dir,
+          target_file
+        )
+
+        vim.cmd 'CodeCompanionChat'
+        vim.defer_fn(function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.bo[buf].filetype == 'codecompanion' then
+            vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(prompt, '\n'))
+          end
+        end, 100)
+      end, { nargs = '?', desc = 'Smart test generation with pattern detection' })
 
       -- Set up completion for codecompanion buffers
       vim.api.nvim_create_autocmd('FileType', {
@@ -500,9 +1111,31 @@ Remember: You're the toxic but loveable programming buddy who makes coding fun t
             cmp.setup.buffer {
               sources = {
                 { name = 'codecompanion' },
+                { name = 'path' },
+                { name = 'buffer' },
               },
             }
           end
+          vim.keymap.set('i', '@', function()
+            -- Trigger completion for tools
+            vim.api.nvim_feedkeys('@', 'n', false)
+            vim.defer_fn(function()
+              if vim.fn.pumvisible() == 0 then
+                -- Trigger completion manually
+                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-x><C-o>', true, false, true), 'n', false)
+              end
+            end, 50)
+          end, { buffer = true, desc = 'CodeCompanion tools completion' })
+
+          vim.keymap.set('i', '#', function()
+            -- Trigger completion for variables
+            vim.api.nvim_feedkeys('#', 'n', false)
+            vim.defer_fn(function()
+              if vim.fn.pumvisible() == 0 then
+                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-x><C-o>', true, false, true), 'n', false)
+              end
+            end, 50)
+          end, { buffer = true, desc = 'CodeCompanion variables completion' })
         end,
       })
     end,
