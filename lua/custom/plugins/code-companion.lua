@@ -65,6 +65,42 @@ return {
             make_slash_commands = true, -- Add MCP prompts as /slash commands
           },
         },
+        vectorcode = {
+          vectorcode = {
+            opts = {
+              tool_group = {
+                enabled = true,
+                extras = { 'file_search' },
+                collapse = false,
+              },
+              tool_opts = {
+                ['*'] = {
+                  use_lsp = true,
+                  requires_approval = false,
+                },
+                query = {
+                  max_num = { chunk = -1, document = 10 },
+                  default_num = { chunk = 50, document = 5 },
+                  include_stderr = false,
+                  use_lsp = true,
+                  no_duplicate = true,
+                  chunk_mode = false,
+                  summarise = {
+                    enabled = false,
+                    adapter = nil,
+                    query_augmented = true,
+                  },
+                },
+                vectorise = {
+                  requires_approval = true,
+                },
+                ls = {
+                  requires_approval = false,
+                },
+              },
+            },
+          },
+        },
       },
       adapters = {
         tavily = function()
@@ -188,6 +224,67 @@ return {
                 },
               },
 
+              -- NUEVA: Semantic analysis workflow
+              ['semantic_analysis'] = {
+                description = 'Advanced semantic code analysis',
+                tools = {
+                  'vectorcode_query',
+                  'grep_search', -- Comparar con búsqueda tradicional
+                  'read_file', -- Leer archivos encontrados
+                  'vectorcode_files_ls', -- Ver qué está indexado
+                },
+              },
+
+              -- NUEVO: Git analysis workflow
+              ['git_analysis'] = {
+                description = 'Git repository analysis and change tracking',
+                tools = {
+                  'grep_search', -- Search in diffs and commit messages
+                  'read_file', -- Read changed files
+                  'get_changed_files', -- Get git status
+                },
+              },
+
+              -- NUEVO: Semantic search workflow
+              ['semantic_search'] = {
+                description = 'VectorCode semantic search and analysis',
+                tools = {
+                  'grep_search', -- Traditional search for comparison
+                  'read_file', -- Read found files
+                  'file_search', -- Find related files
+                },
+              },
+
+              -- NUEVO: Code review workflow with git
+              ['code_review_git'] = {
+                description = 'Code review workflow using git context',
+                tools = {
+                  'get_changed_files', -- Get what changed
+                  'read_file', -- Read the changes
+                  'grep_search', -- Find related code patterns
+                },
+              },
+
+              -- NUEVO: Commit analysis
+              ['commit_analysis'] = {
+                description = 'Analyze commits and suggest improvements',
+                tools = {
+                  'get_changed_files',
+                  'read_file',
+                  'grep_search',
+                },
+              },
+
+              -- NUEVO: Refactoring with git history
+              ['refactor_with_history'] = {
+                description = 'Refactoring considering git history and impact',
+                tools = {
+                  'grep_search', -- Find all usages
+                  'get_changed_files', -- See what else changed recently
+                  'read_file', -- Read implementation
+                },
+              },
+
               -- Workflow de desarrollo
               ['dev_workflow'] = {
                 description = 'Development and refactoring workflow',
@@ -303,6 +400,117 @@ return {
                   )
                   .. ' \\) | head -25'
                 table.insert(context, vim.fn.system(find_cmd))
+
+                table.insert(context, '\n## VectorCode')
+                local has_bin = vim.fn.executable 'vectorcode' == 1
+                local index_path = vim.fn.getcwd() .. '/.vectorcode'
+                local has_index = vim.fn.isdirectory(index_path) == 1
+
+                if not has_bin then
+                  table.insert(context, 'VectorCode not installed. Install with: pipx install vectorcode')
+                elseif not has_index then
+                  table.insert(context, 'VectorCode installed but no index found.')
+                  table.insert(context, 'Create an index with: vectorcode index')
+                else
+                  table.insert(context, 'VectorCode installed and index detected at: ' .. index_path)
+                  -- Show a quick sample of indexed files (non-fatal if command differs)
+                  local files = vim.fn.system 'vectorcode files ls 2>/dev/null | head -20'
+                  if files and files:gsub('%s+', '') ~= '' then
+                    table.insert(context, '\nIndexed files (sample):')
+                    table.insert(context, files)
+                  end
+                  table.insert(context, '\nTip: Use @{vectorcode_query} for semantic search.')
+                end
+
+                return table.concat(context, '\n')
+              end,
+            },
+            vector_search = {
+              description = 'Semantic search using VectorCode index',
+              callback = function()
+                -- Check if VectorCode is available
+                local has_vectorcode = vim.fn.executable 'vectorcode' == 1
+                if not has_vectorcode then
+                  return '## VectorCode not available\nInstall with: pipx install vectorcode'
+                end
+
+                -- Check if index exists
+                local index_path = vim.fn.getcwd() .. '/.vectorcode'
+                local has_index = vim.fn.isdirectory(index_path) == 1
+
+                if not has_index then
+                  return '## VectorCode index not found\nRun: vectorcode index to create semantic index'
+                end
+
+                return '## VectorCode index available\nUse @{vectorcode_query} for semantic search'
+              end,
+            },
+
+            -- NUEVO: Git context
+            git_context = {
+              description = 'Git repository context and recent changes',
+              callback = function()
+                local context = {}
+
+                -- Check if we're in a git repo
+                local in_git = vim.fn.system('git rev-parse --is-inside-work-tree 2>/dev/null'):gsub('%s+', '') == 'true'
+                if not in_git then
+                  return '## Not in a Git repository'
+                end
+
+                table.insert(context, '## Git Repository Context')
+
+                -- Current branch
+                local branch = vim.fn.system('git branch --show-current 2>/dev/null'):gsub('%s+', '')
+                table.insert(context, '**Current branch**: ' .. branch)
+
+                -- Recent commits (last 5)
+                table.insert(context, '\n**Recent commits**:')
+                local commits = vim.fn.system 'git log --oneline -5 2>/dev/null'
+                table.insert(context, commits)
+
+                -- Modified files
+                table.insert(context, '**Modified files**:')
+                local modified = vim.fn.system 'git status --porcelain 2>/dev/null'
+                if modified:gsub('%s+', '') == '' then
+                  table.insert(context, 'No modified files')
+                else
+                  table.insert(context, modified)
+                end
+
+                return table.concat(context, '\n')
+              end,
+            },
+
+            -- NUEVO: Git diff context
+            git_diff = {
+              description = 'Git diff of current changes',
+              callback = function()
+                local in_git = vim.fn.system('git rev-parse --is-inside-work-tree 2>/dev/null'):gsub('%s+', '') == 'true'
+                if not in_git then
+                  return '## Not in a Git repository'
+                end
+
+                local context = {}
+                table.insert(context, '## Git Diff (Staged + Unstaged)')
+
+                -- Get diff
+                local diff = vim.fn.system 'git diff HEAD 2>/dev/null'
+                if diff:gsub('%s+', '') == '' then
+                  table.insert(context, 'No changes detected')
+                else
+                  -- Limit diff size for context window
+                  local lines = vim.split(diff, '\n')
+                  if #lines > 100 then
+                    for i = 1, 100 do
+                      table.insert(context, lines[i])
+                    end
+                    table.insert(context, '... (diff truncated)')
+                  else
+                    table.insert(context, diff)
+                  end
+                end
+
                 return table.concat(context, '\n')
               end,
             },
@@ -654,6 +862,168 @@ Remember: You're the toxic but loveable programming buddy who makes coding fun t
         mode = { 'n' },
       },
       {
+        '<Leader>agc', -- Git commit analysis
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{commit_analysis} Analyze recent commits and changes',
+                '',
+                '#{git_context}',
+                '',
+                '#{git_diff}',
+                '',
+                'Please analyze:',
+                '- Quality of recent commits',
+                '- Potential breaking changes',
+                '- Code review suggestions',
+                '- Impact assessment',
+                '- Missing tests or documentation',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Git commit analysis',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>agd', -- Git diff review
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{code_review_git} Review current git changes',
+                '',
+                '#{git_diff}',
+                '',
+                'Review these changes for:',
+                '- Code quality and style',
+                '- Potential bugs or issues',
+                '- Security considerations',
+                '- Performance implications',
+                '- Test coverage gaps',
+                '- Documentation needs',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Git diff review',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>agh', -- Git history analysis
+        function()
+          local file_path = vim.fn.expand '%:p'
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{git_analysis} Analyze git history for current file',
+                '',
+                '#{git_context}',
+                '',
+                'For file: ' .. file_path,
+                '',
+                'Please analyze:',
+                '- File evolution and key changes',
+                '- Refactoring opportunities',
+                '- Code quality trends',
+                '- Frequent modification patterns',
+                '- Technical debt indicators',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Git history analysis for current file',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>avs', -- VectorCode semantic search
+        function()
+          local search_term = vim.fn.input 'Semantic search query: '
+          if search_term ~= '' then
+            vim.cmd 'CodeCompanionChat'
+            vim.defer_fn(function()
+              local buf = vim.api.nvim_get_current_buf()
+              if vim.bo[buf].filetype == 'codecompanion' then
+                vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                  '@{semantic_search} Semantic search for: ' .. search_term,
+                  '',
+                  '#{vector_search}',
+                  '',
+                  'Search strategy:',
+                  '1. Use semantic search to find related concepts',
+                  '2. Compare with traditional grep search',
+                  '3. Analyze patterns and relationships',
+                  '4. Provide code insights based on semantic similarity',
+                  '',
+                  'Query: "' .. search_term .. '"',
+                })
+                vim.cmd 'startinsert!'
+              end
+            end, 100)
+          end
+        end,
+        desc = 'CodeCompanion: VectorCode semantic search',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>avi', -- VectorCode index status
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '#{vector_search}',
+                '',
+                'Check VectorCode index status and suggest next actions.',
+                'If index exists, show what semantic searches are possible.',
+                'If not, explain how to create and use the index.',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: VectorCode index status',
+        mode = { 'n' },
+      },
+      {
+        '<Leader>agr', -- Git-aware refactoring
+        function()
+          local symbol = vim.fn.expand '<cword>'
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{refactor_with_history} Git-aware refactoring for: ' .. symbol,
+                '',
+                '#{git_context}',
+                '',
+                'Refactor "' .. symbol .. '" considering:',
+                '- Recent changes and git history',
+                '- Impact on other parts of codebase',
+                '- Breaking change implications',
+                '- Migration strategy if needed',
+                '- Test updates required',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: Git-aware refactoring',
+        mode = { 'n' },
+      },
+      {
         '<Leader>aw',
         function()
           vim.cmd 'CodeCompanionChat'
@@ -872,6 +1242,29 @@ Remember: You're the toxic but loveable programming buddy who makes coding fun t
         mode = { 'n' },
       },
       {
+        '<Leader>avt', -- VectorCode toolbox
+        function()
+          vim.cmd 'CodeCompanionChat'
+          vim.defer_fn(function()
+            local buf = vim.api.nvim_get_current_buf()
+            if vim.bo[buf].filetype == 'codecompanion' then
+              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                '@{vectorcode_toolbox} Semantic analysis of this codebase',
+                '',
+                'Please:',
+                '1. Check what projects are indexed',
+                '2. Search for semantic patterns related to my query',
+                '3. Analyze the code structure and relationships',
+                '4. Suggest improvements based on similar code patterns',
+              })
+              vim.cmd 'startinsert!'
+            end
+          end, 100)
+        end,
+        desc = 'CodeCompanion: VectorCode toolbox workflow',
+        mode = { 'n' },
+      },
+      {
         '<Leader>aT', -- Test workflow
         function()
           vim.cmd 'CodeCompanionChat'
@@ -1063,6 +1456,161 @@ Focus on actionable improvements.
           end
         end, 100)
       end, { nargs = '?', desc = 'Review files with CodeCompanion' })
+
+      -- NUEVO: VectorCode setup y management
+      vim.api.nvim_create_user_command('CCVectorSetup', function()
+        local prompt = [[
+#{vector_search}
+
+Let's set up VectorCode for semantic search:
+
+1. Check if VectorCode is installed
+2. If not installed: Provide installation instructions
+3. If installed but no index: Guide through index creation
+4. If index exists: Show usage examples
+
+After setup, explain how to use semantic search with CodeCompanion.
+]]
+
+        vim.cmd 'CodeCompanionChat'
+        vim.defer_fn(function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.bo[buf].filetype == 'codecompanion' then
+            vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(prompt, '\n'))
+          end
+        end, 100)
+      end, { desc = 'Setup VectorCode for semantic search' })
+
+      -- NUEVO: Git analysis de commits específicos
+      vim.api.nvim_create_user_command('CCGitCommit', function(opts)
+        local commit_hash = opts.args ~= '' and opts.args or vim.fn.input 'Commit hash (or leave empty for recent): '
+        local commit_arg = commit_hash ~= '' and commit_hash or 'HEAD~5..HEAD'
+
+        local prompt = string.format(
+          [[
+@{git_analysis} Analyze git commits: %s
+
+#{git_context}
+
+Please analyze the specified commits:
+1. Extract commit messages and changes
+2. Assess code quality impact
+3. Identify potential risks or improvements
+4. Suggest follow-up actions
+
+Commit range: %s
+]],
+          commit_arg,
+          commit_arg
+        )
+
+        vim.cmd 'CodeCompanionChat'
+        vim.defer_fn(function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.bo[buf].filetype == 'codecompanion' then
+            vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(prompt, '\n'))
+          end
+        end, 100)
+      end, { nargs = '?', desc = 'Analyze specific git commits' })
+
+      -- NUEVO: Semantic code search
+      vim.api.nvim_create_user_command('CCSemanticSearch', function(opts)
+        local query = opts.args ~= '' and opts.args or vim.fn.input 'Semantic search query: '
+
+        local prompt = string.format(
+          [[
+@{semantic_search} Semantic search: "%s"
+
+#{vector_search}
+
+Execute semantic search and analysis:
+1. Search for semantically similar code patterns
+2. Compare with traditional keyword search
+3. Find conceptually related functions/classes
+4. Identify code relationships and dependencies
+5. Suggest improvements based on patterns found
+
+Search query: "%s"
+]],
+          query,
+          query
+        )
+
+        vim.cmd 'CodeCompanionChat'
+        vim.defer_fn(function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.bo[buf].filetype == 'codecompanion' then
+            vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(prompt, '\n'))
+          end
+        end, 100)
+      end, { nargs = '?', desc = 'Semantic code search with VectorCode' })
+
+      -- NUEVO: Pre-commit analysis
+      vim.api.nvim_create_user_command('CCPreCommit', function()
+        local prompt = [[
+@{code_review_git} Pre-commit analysis
+
+#{git_diff}
+
+#{git_context}
+
+Perform pre-commit analysis:
+1. Review all staged/unstaged changes
+2. Check for potential issues:
+   - Code quality problems
+   - Security vulnerabilities  
+   - Performance regressions
+   - Missing tests
+   - Documentation gaps
+3. Suggest commit message if changes look good
+4. Recommend fixes if issues found
+
+Ready to commit? Let's review first.
+]]
+
+        vim.cmd 'CodeCompanionChat'
+        vim.defer_fn(function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.bo[buf].filetype == 'codecompanion' then
+            vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(prompt, '\n'))
+          end
+        end, 100)
+      end, { desc = 'Pre-commit code analysis' })
+
+      -- NUEVO: Branch comparison
+      vim.api.nvim_create_user_command('CCBranchCompare', function(opts)
+        local target_branch = opts.args ~= '' and opts.args or vim.fn.input('Compare with branch: ', 'main')
+
+        local prompt = string.format(
+          [[
+@{git_analysis} Compare branches
+
+#{git_context}
+
+Compare current branch with: %s
+
+Analysis needed:
+1. What changed between branches?
+2. Impact assessment of changes
+3. Potential merge conflicts
+4. Code quality comparison
+5. Test coverage differences
+6. Migration/deployment considerations
+
+Target branch: %s
+]],
+          target_branch,
+          target_branch
+        )
+
+        vim.cmd 'CodeCompanionChat'
+        vim.defer_fn(function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.bo[buf].filetype == 'codecompanion' then
+            vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(prompt, '\n'))
+          end
+        end, 100)
+      end, { nargs = '?', desc = 'Compare current branch with another' })
 
       vim.api.nvim_create_user_command('CCSmartTest', function(opts)
         local target_file = opts.args ~= '' and opts.args or vim.fn.expand '%:p'
