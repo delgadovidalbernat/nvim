@@ -110,6 +110,28 @@ return {
             },
           })
         end,
+
+        openrouter = function()
+          return require('codecompanion.adapters').extend('openai_compatible', {
+            env = {
+              url = 'https://openrouter.ai/api',
+              api_key = 'cmd:echo $OPENROUTER_API_KEY',
+              chat_url = '/v1/chat/completions',
+            },
+            schema = {
+              model = {
+                default = 'z-ai/glm-4.5',
+              },
+              temperature = {
+                default = 0.7,
+              },
+              max_tokens = {
+                default = 4096,
+              },
+            },
+          })
+        end,
+
         -- Active OpenAI configuration
         openai = function()
           return require('codecompanion.adapters').extend('openai', {
