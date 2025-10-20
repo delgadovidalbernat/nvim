@@ -35,13 +35,6 @@ return {
           },
         },
       },
-      -- Code indexing and search for large projects
-      {
-        'Davidyz/VectorCode',
-        version = '*',
-        build = 'pipx upgrade vectorcode',
-        dependencies = { 'nvim-lua/plenary.nvim' },
-      },
       -- Testing framework
       {
         'echasnovski/mini.test',
@@ -65,42 +58,6 @@ return {
             make_slash_commands = true, -- Add MCP prompts as /slash commands
           },
         },
-        vectorcode = {
-          vectorcode = {
-            opts = {
-              tool_group = {
-                enabled = true,
-                extras = { 'file_search' },
-                collapse = false,
-              },
-              tool_opts = {
-                ['*'] = {
-                  use_lsp = true,
-                  requires_approval = false,
-                },
-                query = {
-                  max_num = { chunk = -1, document = 10 },
-                  default_num = { chunk = 50, document = 5 },
-                  include_stderr = false,
-                  use_lsp = true,
-                  no_duplicate = true,
-                  chunk_mode = false,
-                  summarise = {
-                    enabled = false,
-                    adapter = nil,
-                    query_augmented = true,
-                  },
-                },
-                vectorise = {
-                  requires_approval = true,
-                },
-                ls = {
-                  requires_approval = false,
-                },
-              },
-            },
-          },
-        },
       },
       adapters = {
         openrouter = function()
@@ -112,7 +69,7 @@ return {
             },
             schema = {
               model = {
-                default = 'z-ai/glm-4.5',
+                default = 'z-ai/glm-4.6',
               },
               temperature = {
                 default = 0.7,
@@ -144,7 +101,7 @@ return {
         chat = {
           adapter = {
             name = 'openrouter',
-            model = 'z-ai/glm-4.5',
+            model = 'z-ai/glm-4.6',
           },
           roles = {
             user = 'Berni',
@@ -168,13 +125,6 @@ return {
             get_changed_files = {
               enabled = true,
             },
-            -- vectorcode_query = {
-            --   enabled = true,
-            -- },
-            -- vectorcode_files_ls = {
-            --   enabled = true,
-            -- },
-
             groups = {
               ['r_tools'] = {
                 description = 'Tools to read and analyze code',
@@ -183,8 +133,6 @@ return {
                   'grep_search',
                   'read_file',
                   'get_changed_files',
-                  -- 'vectorcode_query',
-                  -- 'vectorcode_files_ls',
                   'list_code_usages',
                 },
               },
@@ -196,8 +144,6 @@ return {
                   'create_file',
                   'insert_edit_into_file',
                   'grep_search',
-                  -- 'vectorcode_query',
-                  -- 'vectorcode_files_ls',
                   'get_changed_files',
                   'list_code_usages',
                 },
@@ -210,8 +156,6 @@ return {
                   'create_file',
                   'insert_edit_into_file',
                   'grep_search',
-                  -- 'vectorcode_query',
-                  -- 'vectorcode_files_ls',
                   'get_changed_files',
                   'list_code_usages',
                   'cmd_runner',
@@ -258,48 +202,7 @@ return {
                   .. ' \\) | head -50'
                 table.insert(context, vim.fn.system(find_cmd))
 
-                table.insert(context, '\n## VectorCode')
-                local has_bin = vim.fn.executable 'vectorcode' == 1
-                local index_path = vim.fn.getcwd() .. '/.vectorcode'
-                local has_index = vim.fn.isdirectory(index_path) == 1
-
-                if not has_bin then
-                  table.insert(context, 'VectorCode not installed. Install with: pipx install vectorcode')
-                elseif not has_index then
-                  table.insert(context, 'VectorCode installed but no index found.')
-                  table.insert(context, 'Create an index with: vectorcode index')
-                else
-                  table.insert(context, 'VectorCode installed and index detected at: ' .. index_path)
-                  -- Show a quick sample of indexed files (non-fatal if command differs)
-                  local files = vim.fn.system 'vectorcode files ls 2>/dev/null | head -20'
-                  if files and files:gsub('%s+', '') ~= '' then
-                    table.insert(context, '\nIndexed files (sample):')
-                    table.insert(context, files)
-                  end
-                  table.insert(context, '\nTip: Use @{vectorcode_query} for semantic search.')
-                end
-
                 return table.concat(context, '\n')
-              end,
-            },
-            vector_search = {
-              description = 'Semantic search using VectorCode index',
-              callback = function()
-                -- Check if VectorCode is available
-                local has_vectorcode = vim.fn.executable 'vectorcode' == 1
-                if not has_vectorcode then
-                  return '## VectorCode not available\nInstall with: pipx install vectorcode'
-                end
-
-                -- Check if index exists
-                local index_path = vim.fn.getcwd() .. '/.vectorcode'
-                local has_index = vim.fn.isdirectory(index_path) == 1
-
-                if not has_index then
-                  return '## VectorCode index not found\nRun: vectorcode index to create semantic index'
-                end
-
-                return '## VectorCode index available\nUse @{vectorcode_query} for semantic search'
               end,
             },
 
@@ -486,7 +389,7 @@ return {
         inline = {
           adapter = {
             name = 'openrouter',
-            model = 'z-ai/glm-4.5',
+            model = 'z-ai/glm-4.6',
           },
         },
       },
@@ -852,7 +755,7 @@ What would you like to explore together today?
             short_name = 'tg',
             adapter = {
               name = 'openrouter',
-              model = 'z-ai/glm-4.5',
+              model = 'z-ai/glm-4.6',
             },
           },
           prompts = {
@@ -1074,7 +977,7 @@ Provide a summary of what was created and any refinements made.
             short_name = 'tdd',
             adapter = {
               name = 'openrouter',
-              model = 'z-ai/glm-4.5',
+              model = 'z-ai/glm-4.6',
             },
             tools = {
               group = {
@@ -1143,7 +1046,6 @@ Figure out where the production code should live:
 - Look for existing similar files in the project
 - Check import/require statements in the test
 - Follow project naming conventions
-- Use vectorcode to find similar patterns if available
 
 STEP 3: ANALYZE CODEBASE PATTERNS
 Search the codebase to understand:
@@ -1175,7 +1077,6 @@ STEP 4: DISCOVER CODEBASE PATTERNS
 Now that you understand the test, analyze the existing codebase:
 
 1. SEARCH FOR SIMILAR IMPLEMENTATIONS:
-   - Use vectorcode to find semantically similar code
    - Look for functions/classes with similar purpose
    - Find existing patterns for the same type of functionality
 
@@ -1773,29 +1674,6 @@ Ready for the next test or feature!
         desc = 'CodeCompanion: Debug workflow',
         mode = { 'n' },
       },
-      {
-        '<Leader>avt', -- VectorCode toolbox
-        function()
-          vim.cmd 'CodeCompanionChat'
-          vim.defer_fn(function()
-            local buf = vim.api.nvim_get_current_buf()
-            if vim.bo[buf].filetype == 'codecompanion' then
-              vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
-                '@{vectorcode_toolbox} Semantic analysis of this codebase',
-                '',
-                'Please:',
-                '1. Check what projects are indexed',
-                '2. Search for semantic patterns related to my query',
-                '3. Analyze the code structure and relationships',
-                '4. Suggest improvements based on similar code patterns',
-              })
-              vim.cmd 'startinsert!'
-            end
-          end, 100)
-        end,
-        desc = 'CodeCompanion: VectorCode toolbox workflow',
-        mode = { 'n' },
-      },
     },
     init = function()
       -- Create useful command aliases
@@ -1885,30 +1763,6 @@ Focus on actionable improvements.
           end
         end, 100)
       end, { nargs = '?', desc = 'Review files with CodeCompanion' })
-
-      -- NUEVO: VectorCode setup y management
-      vim.api.nvim_create_user_command('CCVectorSetup', function()
-        local prompt = [[
-#{vector_search}
-
-Let's set up VectorCode for semantic search:
-
-1. Check if VectorCode is installed
-2. If not installed: Provide installation instructions
-3. If installed but no index: Guide through index creation
-4. If index exists: Show usage examples
-
-After setup, explain how to use semantic search with CodeCompanion.
-]]
-
-        vim.cmd 'CodeCompanionChat'
-        vim.defer_fn(function()
-          local buf = vim.api.nvim_get_current_buf()
-          if vim.bo[buf].filetype == 'codecompanion' then
-            vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(prompt, '\n'))
-          end
-        end, 100)
-      end, { desc = 'Setup VectorCode for semantic search' })
 
       -- NUEVO: Pre-commit analysis
       vim.api.nvim_create_user_command('CCPreCommit', function()
