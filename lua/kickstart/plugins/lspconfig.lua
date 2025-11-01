@@ -324,27 +324,39 @@ return {
         },
       }
 
-      local gdscript_config = {
+      local gdscript_cmd = {
         capabilities = capabilities,
         settings = {},
       }
 
       if vim.fn.has 'win32' == 1 then
         -- En Windows, usamos la IP conocida o localhost
-        gdscript_config['cmd'] = { 'ncat', '127.0.0.1', os.getenv 'GDSCRIPT_PORT' or '6005' }
+        gdscript_cmd = { 'ncat', '127.0.0.1', os.getenv 'GDSCRIPT_PORT' or '6005' }
       elseif vim.fn.has 'linux' == 1 then
         -- En Linux (WSL), obtenemos dinámicamente la IP del host de Windows
         local function get_windows_host_ip()
           local handle = io.popen "ip route show | grep -i default | awk '{print $3}'"
           local result = handle:read '*a'
           handle:close()
-          return result:gsub('%s+', '') -- Elimina espacios en blanco
+          return result:gsub('%s+', '')
         end
 
-        gdscript_config['cmd'] = { 'ncat', get_windows_host_ip(), os.getenv 'GDSCRIPT_PORT' or '6005' }
+        gdscript_cmd = { 'ncat', get_windows_host_ip(), os.getenv 'GDSCRIPT_PORT' or '6005' }
       end
 
-      require('lspconfig').gdscript.setup(gdscript_config)
+      vim.lsp.config.gdscript = {
+        cmd = gdscript_cmd,
+        root_dir = vim.fs.root(0, { '.git', 'project.godot' }),
+        filetypes = { 'gd', 'gdscript', 'gdscript3' },
+        capabilities = capabilities,
+        settings = {},
+      }
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { 'gd', 'gdscript', 'gdscript3' },
+        callback = function(args)
+          vim.lsp.enable('gdscript', args.buf)
+        end,
+      })
     end,
   },
 }
