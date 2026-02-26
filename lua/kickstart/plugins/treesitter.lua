@@ -1,65 +1,69 @@
 return {
-  { -- Highlight, edit, and navigate code
+  {
     'nvim-treesitter/nvim-treesitter',
+    branch = 'main',
+    lazy = false,
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = {
-        'astro',
-        'terraform',
-        'json',
-        'yaml',
-        'toml',
-        'lua',
-        'hcl',
-        'css',
-        'scss',
-        'bash',
-        'c',
-        'diff',
-        'html',
-        'lua',
-        'luadoc',
-        'markdown',
-        'markdown_inline',
-        'query',
-        'vim',
-        'vimdoc',
+
+    config = function()
+      -- 1. SETUP BÁSICO
+      require('nvim-treesitter').setup {}
+
+      -- 2. INSTALACIÓN DE PARSERS
+      local parsers_to_install = {
         'go',
-        'typescript',
-        'javascript',
+        'lua',
         'rust',
         'python',
-      },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
+        'vim',
+        'vimdoc',
+        'query',
+        'markdown',
+        'markdown_inline',
+        'json',
+        'bash',
+        'yaml',
+        'toml',
+      }
 
-      -- Configuración de indentación para archivos .astro
+      require('nvim-treesitter').install(parsers_to_install)
+
+      -- 3. ACTIVAR EL Highlighting
       vim.api.nvim_create_autocmd('FileType', {
-        pattern = 'astro',
         callback = function()
-          vim.bo.shiftwidth = 2
-          vim.bo.tabstop = 2
-          vim.bo.softtabstop = 2
-          vim.bo.expandtab = true
+          local ok = pcall(vim.treesitter.start)
+          if not ok then
+            return
+          end
         end,
-      }),
-    },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+      })
+
+      -- 4. ACTIVAR INDENTACIÓN
+      vim.api.nvim_create_autocmd('FileType', {
+        callback = function()
+          if vim.b.ts_highlight then
+            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
+
+      -- 5. ACTIVAR FOLDING
+      vim.api.nvim_create_autocmd('FileType', {
+        callback = function()
+          if vim.b.ts_highlight then
+            vim.wo.foldmethod = 'expr'
+            vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+            -- Empezar con todo desplegado
+            vim.opt.foldlevel = 99
+            vim.opt.foldlevelstart = 99
+            -- Habilitar capacidad de plegado
+            vim.opt.foldenable = true
+
+            -- Mostrar columna de plegado
+            vim.opt.foldcolumn = '0'
+          end
+        end,
+      })
+    end,
   },
 }
--- vim: ts=2 sts=2 sw=2 et

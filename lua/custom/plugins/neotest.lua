@@ -73,6 +73,9 @@ return {
           go_test_args = { '-v', '-race', '-count=1' },
           -- Optional: Set DAP configuration (for debugging)
           dap_go_enabled = true,
+          env = {
+            CGO_ENABLED = '1',
+          },
         },
         require 'neotest-rust' {
           args = { '--no-capture' },
