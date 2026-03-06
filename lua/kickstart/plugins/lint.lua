@@ -7,15 +7,15 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
-        clojure = { 'clj-kondo' },
+        -- clojure = { 'clj-kondo' }, -- Disabled: Clojure not in stack
         dockerfile = { 'hadolint' },
-        inko = { 'inko' },
-        janet = { 'janet' },
+        -- inko = { 'inko' },         -- Disabled: Inko not in stack
+        -- janet = { 'janet' },       -- Disabled: Janet not in stack
         json = { 'jsonlint' },
-        rst = { 'vale' },
-        ruby = { 'ruby' },
+        rst = { 'vale' },             -- vale: prose linter for reStructuredText
+        -- ruby = { 'ruby' },         -- Disabled: Ruby not in stack
         terraform = { 'tflint' },
-        text = { 'vale' },
+        text = { 'vale' },            -- vale: prose linter for comments and plain text
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,

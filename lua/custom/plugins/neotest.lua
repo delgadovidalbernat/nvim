@@ -80,6 +80,10 @@ return {
         require 'neotest-rust' {
           args = { '--no-capture' },
         },
+        require 'neotest-python' {
+          -- Uses pytest by default, falls back to unittest
+          runner = 'pytest',
+        },
       },
       -- Set icons (optional)
       icons = {
