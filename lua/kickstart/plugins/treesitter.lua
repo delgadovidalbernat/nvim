@@ -1,67 +1,41 @@
+---@module 'lazy'
+---@type LazySpec
 return {
   {
     'nvim-treesitter/nvim-treesitter',
-    branch = 'main',
     lazy = false,
     build = ':TSUpdate',
-
+    branch = 'main',
     config = function()
-      -- 1. SETUP BÁSICO
-      require('nvim-treesitter').setup {}
-
-      -- 2. INSTALACIÓN DE PARSERS
-      local parsers_to_install = {
-        'go',
-        'lua',
-        'rust',
-        'python',
-        'vim',
-        'vimdoc',
-        'query',
-        'markdown',
-        'markdown_inline',
-        'json',
-        'bash',
-        'yaml',
-        'toml',
+      local parsers = {
+        -- Base (upstream)
+        'bash', 'c', 'diff', 'html', 'lua', 'luadoc',
+        'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
+        -- Stack específico
+        'go', 'rust', 'python', 'json', 'yaml', 'toml',
       }
+      require('nvim-treesitter').install(parsers)
 
-      require('nvim-treesitter').install(parsers_to_install)
-
-      -- 3. ACTIVAR EL Highlighting
       vim.api.nvim_create_autocmd('FileType', {
-        callback = function()
-          local ok = pcall(vim.treesitter.start)
-          if not ok then
-            return
-          end
-        end,
-      })
+        callback = function(args)
+          local buf, filetype = args.buf, args.match
 
-      -- 4. ACTIVAR INDENTACIÓN
-      vim.api.nvim_create_autocmd('FileType', {
-        callback = function()
-          if vim.b.ts_highlight then
-            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-          end
-        end,
-      })
+          local language = vim.treesitter.language.get_lang(filetype)
+          if not language then return end
 
-      -- 5. ACTIVAR FOLDING
-      vim.api.nvim_create_autocmd('FileType', {
-        callback = function()
-          if vim.b.ts_highlight then
-            vim.wo.foldmethod = 'expr'
-            vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-            -- Empezar con todo desplegado
-            vim.opt.foldlevel = 99
-            vim.opt.foldlevelstart = 99
-            -- Habilitar capacidad de plegado
-            vim.opt.foldenable = true
+          -- check if parser exists and load it
+          if not vim.treesitter.language.add(language) then return end
+          -- enables syntax highlighting and other treesitter features
+          vim.treesitter.start(buf, language)
 
-            -- Mostrar columna de plegado
-            vim.opt.foldcolumn = '0'
-          end
+          -- enables treesitter based indentation
+          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+
+          -- enables treesitter based folds (start fully expanded)
+          vim.wo.foldmethod = 'expr'
+          vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+          vim.wo.foldenable = true
+          vim.wo.foldlevel = 99
         end,
       })
     end,
