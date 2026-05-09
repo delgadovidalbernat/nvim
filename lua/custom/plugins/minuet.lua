@@ -1,52 +1,30 @@
 return {
-  -- 'milanglacier/minuet-ai.nvim',
-  -- dependencies = { 'nvim-lua/plenary.nvim' },
-  -- event = 'InsertEnter',
-  -- config = function()
-  --   require('minuet').setup {
-  --     virtualtext = {
-  --       auto_trigger_ft = { 'go', 'lua', 'python', 'sh', 'yaml', 'sql', 'rust' },
-  --       keymap = {
-  --         accept = '<C-j>',
-  --         accept_line = '<M-a>',
-  --         next = '<M-n>',
-  --         prev = '<M-p>',
-  --       },
-  --     },
-  --     provider = 'openai_fim_compatible',
-  --     provider_options = {
-  --       openai_fim_compatible = {
-  --         api_key = function() return os.getenv 'CODESTRAL_API_KEY' end,
-  --         name = 'Codestral',
-  --         end_point = (function() return 'https://codestral.mistral.ai/v1/fim/completions' end)(),
-  --         -- Better quality: qwen2.5-coder:7b if you have VRAM
-  --         -- Fastest: qwen2.5-coder:1.5b-base (current, keep if VRAM is scarce)
-  --         model = 'codestral-latest',
-  --         optional = {
-  --           max_tokens = 128, -- reduced: completions rarely need more
-  --           stop = {
-  --             '<|endoftext|>',
-  --             '<|fim_prefix|>',
-  --             '<|fim_middle|>',
-  --             '<|fim_suffix|>',
-  --             '<|fim_pad|>',
-  --             '<|repo_name|>',
-  --             '<|file_sep|>',
-  --             '<|im_start|>',
-  --             '<|im_end|>',
-  --             '\n\n',
-  --             '\n}',
-  --           },
-  --         },
-  --       },
-  --     },
-  --     -- Smaller context = faster local inference
-  --     context_window = 2500,
-  --     -- Debounce: wait before firing (lower = more responsive feeling)
-  --     debounce = 0,
-  --     -- Throttle: min ms between requests (lower = less blocking)
-  --     throttle = 300,
-  --     n_completions = 1,
-  --   }
-  -- end,
+  'milanglacier/minuet-ai.nvim',
+  dependencies = { 'nvim-lua/plenary.nvim' },
+  config = function()
+    require('minuet').setup {
+      virtualtext = {
+        auto_trigger_ft = { 'go', 'lua', 'python', 'sh', 'yaml', 'sql', 'rust' },
+        keymap = {
+          accept = '<C-j>',
+          accept_line = '<M-a>',
+          next = '<C-n>',
+          prev = '<C-p>',
+        },
+      },
+      provider = 'codestral',
+      provider_options = {
+        codestrar = {
+          model = 'codestral-latest',
+          end_point = 'https://codestral.mistral.ai/v1/fim/completions',
+          api_key = 'CODESTRAL_API_KEY',
+          stream = true,
+          optional = {
+            max_tokens = 256,
+            stop = { '\n\n' },
+          },
+        },
+      },
+    }
+  end,
 }
