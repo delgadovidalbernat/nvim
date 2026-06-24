@@ -6,7 +6,7 @@
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic Config & Keymaps
--- See :help vim.diagnostic.Opts
+--  See `:help vim.diagnostic.Opts`
 vim.diagnostic.config {
   update_in_insert = false,
   severity_sort = true,
@@ -20,7 +20,11 @@ vim.diagnostic.config {
   -- Auto open the float, so you can easily read the errors when jumping with `[d` and `]d`
   jump = {
     on_jump = function(_, bufnr)
-      vim.diagnostic.open_float { bufnr = bufnr, scope = 'cursor', focus = false }
+      vim.diagnostic.open_float {
+        bufnr = bufnr,
+        scope = 'cursor',
+        focus = false,
+      }
     end,
   },
 }

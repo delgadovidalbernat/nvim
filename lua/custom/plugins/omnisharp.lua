@@ -1,6 +1,3 @@
--- Disabled: C# LSP, used for .NET or Unity development
-return {
-  --   {
-  --     'OmniSharp/omnisharp-vim'
-  --   }
-}
+-- Disabled: C# LSP, used for .NET or Unity development.
+-- local function gh(repo) return 'https://github.com/' .. repo end
+-- vim.pack.add { gh 'OmniSharp/omnisharp-vim' }

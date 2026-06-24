@@ -1,7 +1,5 @@
-return {
-  {
-    'mrcjkb/rustaceanvim',
-    version = '^6', -- Recommended
-    lazy = false, -- This plugin is already lazy
-  },
+local function gh(repo) return 'https://github.com/' .. repo end
+
+vim.pack.add {
+  { src = gh 'mrcjkb/rustaceanvim', version = vim.version.range '^6' },
 }

@@ -1,3 +1,5 @@
+local function gh(repo) return 'https://github.com/' .. repo end
+
 local custom_theme = {
   normal = {
     a = { fg = '#ffffff', bg = '#5f87d7', gui = 'bold' },
@@ -31,47 +33,46 @@ local custom_theme = {
   },
 }
 
-return {
-  {
-    'nvim-lualine/lualine.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    opts = {
-      options = {
-        globalstatus = true,
-        icons_enabled = true,
-        theme = custom_theme,
-        component_separators = { left = '', right = '' },
-        section_separators = { left = '', right = '' },
-      },
-      sections = {
-        lualine_a = { 'mode' },
-        lualine_b = { 'branch', 'diff' },
-        lualine_c = {
-          {
-            'filename',
-            path = 1, -- ruta relativa
-            symbols = { modified = ' ', readonly = ' ' },
-          },
-        },
-        lualine_x = {
-          {
-            function()
-              local rec = vim.fn.reg_recording()
-              if rec == '' then
-                return ''
-              end
-              return 'Recording @' .. rec
-            end,
-            color = { fg = '#ff0000', gui = 'bold' },
-          },
-          { 'diagnostics', sources = { 'nvim_lsp' } },
-          'encoding',
-          'fileformat',
-          'filetype',
-        },
-        lualine_y = { 'progress' },
-        lualine_z = { 'location' },
+vim.pack.add {
+  gh 'nvim-tree/nvim-web-devicons',
+  gh 'nvim-lualine/lualine.nvim',
+}
+
+require('lualine').setup {
+  options = {
+    globalstatus = true,
+    icons_enabled = true,
+    theme = custom_theme,
+    component_separators = { left = '', right = '' },
+    section_separators = { left = '', right = '' },
+  },
+  sections = {
+    lualine_a = { 'mode' },
+    lualine_b = { 'branch', 'diff' },
+    lualine_c = {
+      {
+        'filename',
+        path = 1, -- ruta relativa
+        symbols = { modified = ' ', readonly = ' ' },
       },
     },
+    lualine_x = {
+      {
+        function()
+          local rec = vim.fn.reg_recording()
+          if rec == '' then
+            return ''
+          end
+          return 'Recording @' .. rec
+        end,
+        color = { fg = '#ff0000', gui = 'bold' },
+      },
+      { 'diagnostics', sources = { 'nvim_lsp' } },
+      'encoding',
+      'fileformat',
+      'filetype',
+    },
+    lualine_y = { 'progress' },
+    lualine_z = { 'location' },
   },
 }

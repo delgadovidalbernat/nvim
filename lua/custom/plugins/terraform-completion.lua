@@ -1,11 +1,9 @@
-return {
-  {
-    'juliosueiras/vim-terraform-completion',
-    dependencies = {
-      'Shougo/deoplete.nvim',
-      'neomake/neomake',
-      'vim-syntastic/syntastic',
-      'hashivim/vim-terraform',
-    },
-  },
+local function gh(repo) return 'https://github.com/' .. repo end
+
+vim.pack.add {
+  gh 'Shougo/deoplete.nvim',
+  gh 'neomake/neomake',
+  gh 'vim-syntastic/syntastic',
+  gh 'hashivim/vim-terraform',
+  gh 'juliosueiras/vim-terraform-completion',
 }

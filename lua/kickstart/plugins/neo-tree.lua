@@ -1,36 +1,31 @@
+local function gh(repo) return 'https://github.com/' .. repo end
+
 -- Neo-tree is a Neovim plugin to browse the file system
 -- https://github.com/nvim-neo-tree/neo-tree.nvim
+vim.pack.add {
+  { src = gh 'nvim-neo-tree/neo-tree.nvim', version = vim.version.range '*' },
+  gh 'nvim-lua/plenary.nvim',
+  gh 'nvim-tree/nvim-web-devicons',
+  gh 'MunifTanjim/nui.nvim',
+}
 
----@module 'lazy'
----@type LazySpec
-return {
-  'nvim-neo-tree/neo-tree.nvim',
-  version = '*',
-  dependencies = {
-    'nvim-lua/plenary.nvim',
-    'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
-    'MunifTanjim/nui.nvim',
-  },
-  lazy = true,
-  keys = {
-    { '\\', ':Neotree toggle<CR>', desc = 'NeoTree toggle', silent = true },
-    { '<Tab><Tab>', ':Neotree toggle<CR>', desc = 'NeoTree toggle', silent = true },
-  },
-  ---@module 'neo-tree'
-  ---@type neotree.Config
-  opts = {
-    filesystem = {
-      filtered_items = {
-        hide_dotfiles = true,
-        hide_gitignored = true,
-        visible = true,
-        hide_by_name = {},
-      },
-      window = {
-        mappings = {
-          ['\\'] = 'close_window',
-        },
+vim.keymap.set('n', '\\', '<Cmd>Neotree toggle<CR>', { desc = 'NeoTree toggle', silent = true })
+vim.keymap.set('n', '<Tab><Tab>', '<Cmd>Neotree toggle<CR>', { desc = 'NeoTree toggle', silent = true })
+
+require('neo-tree').setup {
+  filesystem = {
+    filtered_items = {
+      hide_dotfiles = true,
+      hide_gitignored = true,
+      visible = true,
+      hide_by_name = {},
+    },
+    window = {
+      mappings = {
+        ['\\'] = 'close_window',
       },
     },
   },
 }
+
+-- vim: ts=2 sts=2 sw=2 et

@@ -1,6 +1,3 @@
--- Disabled: Astro framework treesitter parser, using React instead
-return {
-  --   {
-  --     'virchau13/tree-sitter-astro',
-  --   },
-}
+-- Disabled: Astro framework treesitter parser, using React instead.
+-- local function gh(repo) return 'https://github.com/' .. repo end
+-- vim.pack.add { gh 'virchau13/tree-sitter-astro' }

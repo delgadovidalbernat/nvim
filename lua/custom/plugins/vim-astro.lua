@@ -1,6 +1,3 @@
--- Disabled: Astro framework support, using React instead
-return {
-  --   {
-  --     'wuelnerdotexe/vim-astro',
-  --   },
-}
+-- Disabled: Astro framework support, using React instead.
+-- local function gh(repo) return 'https://github.com/' .. repo end
+-- vim.pack.add { gh 'wuelnerdotexe/vim-astro' }

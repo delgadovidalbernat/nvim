@@ -1,5 +1,5 @@
-return {
-  {
-    'sindrets/diffview.nvim',
-  },
+local function gh(repo) return 'https://github.com/' .. repo end
+
+vim.pack.add {
+  gh 'sindrets/diffview.nvim',
 }

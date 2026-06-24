@@ -1,3 +1,5 @@
-return {
-  {'christoomey/vim-system-copy'}
+local function gh(repo) return 'https://github.com/' .. repo end
+
+vim.pack.add {
+  gh 'christoomey/vim-system-copy',
 }

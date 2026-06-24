@@ -1,5 +1,3 @@
-return {
-  -- {
-  --   'EdenEast/nightfox.nvim',
-  -- },
-}
+-- Disabled: extra fox themes are not currently used.
+-- local function gh(repo) return 'https://github.com/' .. repo end
+-- vim.pack.add { gh 'EdenEast/nightfox.nvim' }

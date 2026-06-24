@@ -84,16 +84,6 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
-vim.o.termguicolors = true
-
--- Set to true if you have a Nerd Font installed
-vim.g.have_nerd_font = true
-
 -- [[ Setting options ]]
 require 'options'
 
@@ -103,22 +93,11 @@ require 'keymaps'
 -- [[ WSL compatibility ]]
 require 'wsl'
 
--- [[ Install `lazy.nvim` plugin manager ]]
--- require 'lazy-bootstrap'
-
---    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
-local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
-  local out = vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
-  if vim.v.shell_error ~= 0 then
-    error('Error cloning lazy.nvim:\n' .. out)
-  end
-end ---@diagnostic disable-next-line: undefined-field
-vim.opt.rtp:prepend(lazypath)
+-- [[ Set up vim.pack ]]
+require 'pack'
 
 -- [[ Configure and install plugins ]]
-require 'lazy-plugins'
+require 'plugins'
 
 if vim.fn.has 'win32' == 1 then
   -- Ruta para Windows
