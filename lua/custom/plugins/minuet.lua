@@ -1,30 +1,30 @@
 return {
-  'milanglacier/minuet-ai.nvim',
-  dependencies = { 'nvim-lua/plenary.nvim' },
-  config = function()
-    require('minuet').setup {
-      virtualtext = {
-        auto_trigger_ft = { 'go', 'lua', 'python', 'sh', 'yaml', 'sql', 'rust' },
-        keymap = {
-          accept = '<C-j>',
-          accept_line = '<M-a>',
-          next = '<C-n>',
-          prev = '<C-p>',
-        },
-      },
-      provider = 'codestral',
-      provider_options = {
-        codestrar = {
-          model = 'codestral-latest',
-          end_point = 'https://codestral.mistral.ai/v1/fim/completions',
-          api_key = 'CODESTRAL_API_KEY',
-          stream = true,
-          optional = {
-            max_tokens = 256,
-            stop = { '\n\n' },
-          },
-        },
-      },
-    }
-  end,
+  -- 'milanglacier/minuet-ai.nvim',
+  -- dependencies = { 'nvim-lua/plenary.nvim' },
+  -- config = function()
+  --   require('minuet').setup {
+  --     virtualtext = {
+  --       auto_trigger_ft = { 'go', 'lua', 'python', 'sh', 'yaml', 'sql', 'rust' },
+  --       keymap = {
+  --         accept = '<C-j>',
+  --         accept_line = '<M-a>',
+  --         next = '<C-n>',
+  --         prev = '<C-p>',
+  --       },
+  --     },
+  --     provider = 'codestral',
+  --     provider_options = {
+  --       codestrar = {
+  --         model = 'codestral-latest',
+  --         end_point = 'https://codestral.mistral.ai/v1/fim/completions',
+  --         api_key = 'CODESTRAL_API_KEY',
+  --         stream = true,
+  --         optional = {
+  --           max_tokens = 256,
+  --           stop = { '\n\n' },
+  --         },
+  --       },
+  --     },
+  --   }
+  -- end,
 }
