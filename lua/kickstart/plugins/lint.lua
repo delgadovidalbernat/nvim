@@ -11,6 +11,7 @@ lint.linters_by_ft = {
   -- inko = { 'inko' },         -- Disabled: Inko not in stack
   -- janet = { 'janet' },       -- Disabled: Janet not in stack
   json = { 'jsonlint' },
+  gdscript = { 'gdlint' },
   rst = { 'vale' }, -- vale: prose linter for reStructuredText
   -- ruby = { 'ruby' },         -- Disabled: Ruby not in stack
   terraform = { 'tflint' },

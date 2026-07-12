@@ -84,6 +84,7 @@ local servers = {
   gopls = {},
   pyright = {},
   rust_analyzer = {},
+  terraformls = {},
 
   -- Used to format Lua code via conform/mason-tool-installer.
   stylua = {},
@@ -184,31 +185,5 @@ for name, server in pairs(servers) do
   vim.lsp.config(name, server)
   vim.lsp.enable(name)
 end
-
--- GDScript (Godot) - local configuration, including WSL host discovery.
-local function get_windows_host_ip()
-  local handle = io.popen "ip route show | grep -i default | awk '{print $3}'"
-  if not handle then return '127.0.0.1' end
-  local result = handle:read '*a'
-  handle:close()
-  return result:gsub('%s+', '')
-end
-
-local gdscript_cmd
-if vim.fn.has 'win32' == 1 then
-  gdscript_cmd = { 'ncat', '127.0.0.1', os.getenv 'GDSCRIPT_PORT' or '6005' }
-elseif vim.fn.has 'linux' == 1 then
-  gdscript_cmd = { 'ncat', get_windows_host_ip(), os.getenv 'GDSCRIPT_PORT' or '6005' }
-else
-  gdscript_cmd = { 'ncat', '127.0.0.1', os.getenv 'GDSCRIPT_PORT' or '6005' }
-end
-
-vim.lsp.config('gdscript', {
-  cmd = gdscript_cmd,
-  root_dir = function(bufnr) return vim.fs.root(bufnr, { '.git', 'project.godot' }) end,
-  filetypes = { 'gd', 'gdscript', 'gdscript3' },
-  settings = {},
-})
-vim.lsp.enable 'gdscript'
 
 -- vim: ts=2 sts=2 sw=2 et

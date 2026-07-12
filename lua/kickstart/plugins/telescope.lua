@@ -37,6 +37,9 @@ vim.pack.add(telescope_plugins)
 
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
+  defaults = {
+    file_ignore_patterns = { '%.uid$' },
+  },
   -- You can put your default mappings / updates / etc. in here
   --  All the info you're looking for is in `:help telescope.setup()`
   --

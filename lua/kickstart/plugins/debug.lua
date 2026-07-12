@@ -69,7 +69,8 @@ dapui.setup {
 -- Local breakpoint icons.
 vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#e51400' })
 vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffcc00' })
-local breakpoint_icons = vim.g.have_nerd_font and { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
+local breakpoint_icons = vim.g.have_nerd_font
+    and { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
   or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
 for type, icon in pairs(breakpoint_icons) do
   local tp = 'Dap' .. type
@@ -87,22 +88,6 @@ require('dap-go').setup {
     -- On Windows delve must be run attached or it crashes.
     -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
     detached = vim.fn.has 'win32' == 0,
-  },
-}
-
--- Local Godot/GDScript debugging adapter.
-dap.adapters.godot = {
-  type = 'server',
-  host = '127.0.0.1',
-  port = 6006,
-}
-
-dap.configurations.gdscript = {
-  {
-    type = 'godot',
-    request = 'launch',
-    name = 'Launch scene',
-    project = '${workspaceFolder}',
   },
 }
 
