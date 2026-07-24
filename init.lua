@@ -84,6 +84,12 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+-- Windows does not always define a UTF-8 locale in the environment.
+if vim.fn.has 'win32' == 1 and (not vim.env.LANG or vim.env.LANG == '') then
+  vim.env.LANG = 'en_US.UTF-8'
+  vim.cmd.language 'ctype en_US.UTF-8'
+end
+
 -- [[ Setting options ]]
 require 'options'
 

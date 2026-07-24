@@ -19,6 +19,7 @@ require('neo-tree').setup {
       hide_gitignored = true,
       visible = true,
       hide_by_name = {},
+      never_show_by_pattern = { '*.uid' },
     },
     window = {
       mappings = {
