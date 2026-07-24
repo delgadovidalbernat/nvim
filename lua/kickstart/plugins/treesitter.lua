@@ -22,6 +22,7 @@ local parsers = {
   'vimdoc',
   -- Stack específico local
   'go',
+  'typescript',
   'rust',
   'python',
   'json',

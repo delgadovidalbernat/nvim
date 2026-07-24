@@ -84,6 +84,7 @@ local servers = {
   gopls = {},
   pyright = {},
   rust_analyzer = {},
+  ts_ls = {},
 
   -- Used to format Lua code via conform/mason-tool-installer.
   stylua = {},
