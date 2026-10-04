@@ -146,6 +146,26 @@ local servers = {
       },
     },
   },
+
+  nixd = {
+    settings = {
+      nixd = {
+        formatting = {
+          command = { 'nixfmt' },
+        },
+
+        options = {
+          nixos = {
+            expr = '(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.bernixOs.options',
+          },
+
+          home_manager = {
+            expr = '(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.bernixOs.options.home-manager.users.type.getSubOptions []',
+          },
+        },
+      },
+    },
+  },
 }
 
 -- Local DB buffers should behave as SQL buffers and attach sqlls.
@@ -179,14 +199,17 @@ require('mason-lspconfig').setup {
   automatic_enable = false, -- Change this to true if you want to automatically enable servers that are installed manually (e.g. via :Mason / :MasonInstall)
 }
 
--- Ensure the servers and tools above are installed
---
--- To check the current status of installed tools and/or manually install
--- other tools, you can run
---    :Mason
---
--- You can press `g?` for help in this menu.
-local ensure_installed = vim.tbl_keys(servers or {})
+-- LSP inside mason_excluded will not try to be installed for Mason, all other lsp declared in servers will try to be installed with Mason automatically.
+local mason_excluded = {
+  nixd = true,
+}
+
+local ensure_installed = {}
+
+for name in pairs(servers) do
+  if not mason_excluded[name] then table.insert(ensure_installed, name) end
+end
+
 vim.list_extend(ensure_installed, {
   -- You can add other tools here that you want Mason to install.
 })

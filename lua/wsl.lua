@@ -21,8 +21,6 @@ if is_wsl() then
       cache_enabled = 0,
     }
     vim.opt.clipboard = 'unnamedplus'
-  else
-    print('win32yank.exe not found ' .. win32yank_path)
   end
 else
   vim.opt.clipboard = 'unnamedplus'
