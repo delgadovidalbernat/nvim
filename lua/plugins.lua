@@ -20,6 +20,10 @@ require 'kickstart.plugins.autopairs'
 require 'kickstart.plugins.neo-tree'
 
 -- Local custom plugin modules under lua/custom/plugins/*.lua.
+-- `custom.plugins` automatically loads files from that directory, but their
+-- order is unspecified. If plugins depend on each other, keep them in the same
+-- file and put their `vim.pack.add()` and `setup()` calls in the required order.
+-- If separate modules need a specific order, require them explicitly instead.
 require 'custom.plugins'
 
 -- vim: ts=2 sts=2 sw=2 et
